@@ -22,9 +22,16 @@ __pycache__/
 # Logs
 *.log
 
-# Generated data and models
-data/processed/
-models/
+
+# Generated data
+data/processed/*
+!data/processed/clean.csv
+
+# Keep trained model artifacts for deployment
+# models/ is intentionally tracked
+
+# Cached LLM output
+data/processed/llm_features.jsonl
 
 # Generated reports
 reports/cv_results.csv

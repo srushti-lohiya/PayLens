@@ -1,0 +1,62 @@
+{
+  "model_name": "ridge_tabular+tfidf",
+  "n_rows": 467,
+  "cv": [
+    {
+      "model": "ridge_tabular+tfidf",
+      "rmse": 26.672,
+      "rmse_std": 2.58,
+      "mae": 20.548,
+      "mape_%": 23.457,
+      "r2": 0.433
+    },
+    {
+      "model": "ridge_tabular",
+      "rmse": 27.183,
+      "rmse_std": 2.811,
+      "mae": 20.775,
+      "mape_%": 23.633,
+      "r2": 0.413
+    },
+    {
+      "model": "lightgbm_tabular+text_svd",
+      "rmse": 28.028,
+      "rmse_std": 4.499,
+      "mae": 21.049,
+      "mape_%": 22.944,
+      "r2": 0.384
+    },
+    {
+      "model": "lightgbm_tabular",
+      "rmse": 28.292,
+      "rmse_std": 2.299,
+      "mae": 20.974,
+      "mape_%": 23.254,
+      "r2": 0.36
+    },
+    {
+      "model": "random_forest_tabular",
+      "rmse": 28.309,
+      "rmse_std": 3.585,
+      "mae": 21.029,
+      "mape_%": 23.704,
+      "r2": 0.363
+    },
+    {
+      "model": "baseline_title_state_median",
+      "rmse": 33.15,
+      "rmse_std": 2.966,
+      "mae": 25.308,
+      "mape_%": 28.753,
+      "r2": 0.121
+    },
+    {
+      "model": "baseline_mean",
+      "rmse": 36.222,
+      "rmse_std": 4.845,
+      "mae": 28.36,
+      "mape_%": 33.673,
+      "r2": -0.032
+    }
+  ]
+}

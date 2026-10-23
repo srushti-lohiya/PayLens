@@ -1,4 +1,5 @@
 """Step 8: REST API.  Run:  uvicorn src.api:app --reload   ->  http://127.0.0.1:8000/docs"""
+
 from contextlib import asynccontextmanager
 from typing import Optional
 from fastapi import FastAPI
@@ -8,10 +9,11 @@ from src.service import predict_job, _models
 from src import rag
 
 
-
 class JobInput(BaseModel):
     job_title: str = Field(..., examples=["Senior Data Scientist"])
-    job_description: str = Field("", examples=["Python, SQL, Spark, AWS. 5+ years. PhD preferred."])
+    job_description: str = Field(
+        "", examples=["Python, SQL, Spark, AWS. 5+ years. PhD preferred."]
+    )
     location: str = Field("", examples=["San Francisco, CA"])
     headquarters: Optional[str] = None
     company_rating: float = Field(-1, ge=-1, le=5)
@@ -26,7 +28,8 @@ class JobInput(BaseModel):
 
 @asynccontextmanager
 async def lifespan(app):
-    _models(); rag.load_index()          # load models once at startup
+    _models()
+    rag.load_index()  # load models once at startup
     yield
 
 
@@ -48,4 +51,8 @@ def predict(job: JobInput, explain: bool = False, k: int = 5):
 
 @app.get("/similar")
 def similar(q: str, k: int = 5):
-    return rag.search(q, k=k)[["Job Title", "company", "salary", "similarity"]].round(3).to_dict(orient="records")
+    return (
+        rag.search(q, k=k)[["Job Title", "company", "salary", "similarity"]]
+        .round(3)
+        .to_dict(orient="records")
+    )
