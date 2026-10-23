@@ -1,3 +1,4 @@
+
 pandas>=2.0
 numpy>=1.26
 scikit-learn>=1.4
@@ -9,9 +10,8 @@ pydantic>=2.5
 fastapi>=0.110
 uvicorn>=0.29
 streamlit>=1.33
-anthropic>=0.40
+openai>=1.0
+python-dotenv>=1.0
 httpx>=0.27
 pytest>=8.0
-# optional upgrades:
-# sentence-transformers>=3.0   # better RAG embeddings (RAG falls back to TF-IDF without it)
-# mlflow>=2.12                 # experiment tracking: python -m src.train --mlflow
+sentence-transformers>=3.0

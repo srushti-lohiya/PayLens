@@ -11,6 +11,7 @@ __pycache__/
 .env
 .env.*
 !.env.example
+.streamlit/secrets.toml
 
 # macOS
 .DS_Store
@@ -18,5 +19,14 @@ __pycache__/
 # IDE
 .vscode/
 
-# Generated files
+# Logs
 *.log
+
+# Generated data and models
+data/processed/
+models/
+
+# Generated reports
+reports/cv_results.csv
+reports/interval_report.json
+reports/top_words.csv

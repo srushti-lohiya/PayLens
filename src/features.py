@@ -78,7 +78,7 @@ def build_features(raw: pd.DataFrame) -> pd.DataFrame:
     df["job_in_hq_state"] = (raw["Location"].apply(state_of)
                              == raw["Headquarters"].apply(state_of)).astype(int)
     for col, src in [("sector", "Sector"), ("ownership", "Type of ownership"), ("industry", "Industry")]:
-        df[col] = raw[src].map(_na).fillna("missing").astype(str)
+        df[col] = raw[src].map(_na).astype("object").fillna("missing").astype(str)
     df["desc_len"] = desc.str.len()
     for k, pat in SKILLS.items():
         df[f"skill_{k}"] = desc_l.str.contains(pat, regex=True).astype(int)
