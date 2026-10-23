@@ -31,7 +31,7 @@ The interactive application runs on Streamlit. A FastAPI service exposes the sam
 
 I started with a simple question: *Can a job description tell us something useful about salary?*
 
-My first results looked promising. But when I revisited the data and validation process, I found that the apparent accuracy was partly the result of data leakage. Fixing the evaluation made the metrics less impressive—and the conclusions much more credible.
+My first results looked promising. But when I revisited the data and validation process, I found that the apparent accuracy was partly the result of data leakage. Fixing the evaluation made the metrics less impressive and the conclusions much more credible.
 
 That discovery changed the direction of the project. Instead of stopping at a regression notebook, I built a usable application that reports uncertainty, shows comparable historical jobs, and makes it easier to question a prediction rather than simply accept it.
 
@@ -51,7 +51,7 @@ Enter a job title, location, job description, and company details, then select *
 
 ### 3. Similar historical job postings
 
-![PayLens similar job postings](assets/paylens_similar-jobs.png)
+![PayLens similar job postings](assets/paylens-similar-jobs.png)
 
 For example, you can try:
 
@@ -257,7 +257,7 @@ The next improvements I'd explore are newer salary data, subgroup error and cove
 
 ## What I took away
 
-The most valuable part of this project wasn't making a model output a salary. It was discovering how easy it is to trust an attractive metric for the wrong reasons—and rebuilding the project so the result could be examined rather than simply accepted.
+The most valuable part of this project wasn't making a model output a salary. It was discovering how easy it is to trust an attractive metric for the wrong reasons and rebuilding the project so the result could be examined rather than simply accepted.
 
 **PayLens is my attempt to make a small ML application more transparent, reproducible, and useful.**
 
