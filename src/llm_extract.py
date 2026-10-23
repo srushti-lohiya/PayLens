@@ -1,16 +1,3 @@
-
-"""Step 6: LLM feature extraction from job descriptions.
-
-Uses OpenAI to extract structured job signals validated by Pydantic.
-Results are cached locally to avoid repeated API charges.
-
-Run:
-    python -m src.llm_extract --limit 1
-    python -m src.llm_extract --limit 20
-    python -m src.llm_extract
-    python -m src.llm_extract --evaluate
-"""
-
 import argparse
 import hashlib
 import json
@@ -36,32 +23,26 @@ from src.train import load_xy
 # 1. Structured output schema
 # --------------------------------------------------
 
+
 class JobSignals(BaseModel):
-    min_years_experience: Optional[float] = Field(
-        None, ge=0, le=30
+    min_years_experience: Optional[float] = Field(None, ge=0, le=30)
+
+    degree_required: Literal["none", "bachelors", "masters", "phd", "unspecified"] = (
+        "unspecified"
     )
 
-    degree_required: Literal[
-        "none", "bachelors", "masters", "phd", "unspecified"
-    ] = "unspecified"
-
     seniority: Literal[
-        "intern", "junior", "mid", "senior",
-        "lead", "manager", "unspecified"
+        "intern", "junior", "mid", "senior", "lead", "manager", "unspecified"
     ] = "unspecified"
 
-    remote: Literal[
-        "remote", "hybrid", "onsite", "unspecified"
-    ] = "unspecified"
+    remote: Literal["remote", "hybrid", "onsite", "unspecified"] = "unspecified"
 
     security_clearance: bool = False
     people_management: bool = False
     domain: str = "other"
     skills: List[str] = Field(default_factory=list)
 
-    llm_salary_guess_k: Optional[float] = Field(
-        None, ge=10, le=500
-    )
+    llm_salary_guess_k: Optional[float] = Field(None, ge=10, le=500)
 
 
 # --------------------------------------------------
@@ -125,15 +106,11 @@ DESCRIPTION:
 # 3. Cache management
 # --------------------------------------------------
 
-def key_of(row) -> str:
-    content = (
-        str(row["Job Title"])
-        + str(row["Job Description"])
-    )
 
-    return hashlib.md5(
-        content.encode("utf-8")
-    ).hexdigest()
+def key_of(row) -> str:
+    content = str(row["Job Title"]) + str(row["Job Description"])
+
+    return hashlib.md5(content.encode("utf-8")).hexdigest()
 
 
 def load_cache() -> dict:
@@ -160,15 +137,10 @@ def load_cache() -> dict:
 
 def extract_one(title, location, description) -> JobSignals:
     prompt = PROMPT.format(
-        title=title,
-        location=location,
-        description=str(description)[:6000]
+        title=title, location=location, description=str(description)[:6000]
     )
 
-    raw = ask_json(
-        prompt=prompt,
-        system=SYSTEM
-    )
+    raw = ask_json(prompt=prompt, system=SYSTEM)
 
     salary = raw.get("llm_salary_guess_k")
 
@@ -176,9 +148,7 @@ def extract_one(title, location, description) -> JobSignals:
         try:
             salary = float(salary)
         except (TypeError, ValueError):
-            raise ValueError(
-                f"Invalid salary prediction: {salary!r}"
-            )
+            raise ValueError(f"Invalid salary prediction: {salary!r}")
 
         # Convert USD to thousands only when the value
         # clearly looks like a full annual salary.
@@ -190,18 +160,15 @@ def extract_one(title, location, description) -> JobSignals:
     return JobSignals.model_validate(raw)
 
 
-
 # --------------------------------------------------
 # 5. Extract and cache job signals
 # --------------------------------------------------
 
+
 def run_extraction(df, limit=None):
 
     if not llm_available():
-        raise SystemExit(
-            "OPENAI_API_KEY is missing. "
-            "Add it to your local .env file."
-        )
+        raise SystemExit("OPENAI_API_KEY is missing. Add it to your local .env file.")
 
     if limit is not None and limit < 1:
         raise SystemExit("--limit must be at least 1.")
@@ -232,33 +199,24 @@ def run_extraction(df, limit=None):
     skipped = 0
 
     with LLM_CACHE.open("a", encoding="utf-8") as file:
-
         for index, row in enumerate(todo, start=1):
-
             try:
                 signals = extract_one(
                     title=row["Job Title"],
                     location=row["Location"],
-                    description=row["Job Description"]
+                    description=row["Job Description"],
                 )
 
-                record = {
-                    "key": key_of(row),
-                    **signals.model_dump()
-                }
+                record = {"key": key_of(row), **signals.model_dump()}
 
-                file.write(
-                    json.dumps(record, ensure_ascii=False)
-                    + "\n"
-                )
+                file.write(json.dumps(record, ensure_ascii=False) + "\n")
 
                 file.flush()
                 success += 1
 
             except OpenAIError as error:
                 raise SystemExit(
-                    f"OpenAI API request failed "
-                    f"({type(error).__name__}): {error}"
+                    f"OpenAI API request failed ({type(error).__name__}): {error}"
                 ) from error
 
             except (ValidationError, ValueError) as error:
@@ -270,9 +228,7 @@ def run_extraction(df, limit=None):
                 )
 
             if index % 25 == 0:
-                print(
-                    f"Progress: {index}/{len(todo)}"
-                )
+                print(f"Progress: {index}/{len(todo)}")
 
     print("\nExtraction completed.")
     print(f"Successful: {success}")
@@ -290,83 +246,46 @@ LLM_NUMERIC = [
     "llm_seniority",
     "llm_clearance",
     "llm_manages",
-    "llm_n_skills"
+    "llm_n_skills",
 ]
 
-DEGREE = {
-    "none": 0,
-    "bachelors": 1,
-    "masters": 2,
-    "phd": 3
-}
+DEGREE = {"none": 0, "bachelors": 1, "masters": 2, "phd": 3}
 
-SEN = {
-    "intern": 0,
-    "junior": 1,
-    "mid": 2,
-    "senior": 3,
-    "lead": 4,
-    "manager": 4
-}
+SEN = {"intern": 0, "junior": 1, "mid": 2, "senior": 3, "lead": 4, "manager": 4}
 
 
 def add_llm_features(df_raw, X):
 
     cache = load_cache()
 
-    rows = [
-        cache.get(key_of(row), {})
-        for _, row in df_raw.iterrows()
-    ]
+    rows = [cache.get(key_of(row), {}) for _, row in df_raw.iterrows()]
 
     X = X.copy()
 
-    X["llm_years"] = [
-        row.get("min_years_experience")
-        for row in rows
-    ]
+    X["llm_years"] = [row.get("min_years_experience") for row in rows]
 
-    X["llm_degree"] = [
-        DEGREE.get(row.get("degree_required"))
-        for row in rows
-    ]
+    X["llm_degree"] = [DEGREE.get(row.get("degree_required")) for row in rows]
 
-    X["llm_seniority"] = [
-        SEN.get(row.get("seniority"))
-        for row in rows
-    ]
+    X["llm_seniority"] = [SEN.get(row.get("seniority")) for row in rows]
 
     X["llm_clearance"] = [
-        float(row["security_clearance"])
-        if "security_clearance" in row
-        else np.nan
+        float(row["security_clearance"]) if "security_clearance" in row else np.nan
         for row in rows
     ]
 
     X["llm_manages"] = [
-        float(row["people_management"])
-        if "people_management" in row
-        else np.nan
+        float(row["people_management"]) if "people_management" in row else np.nan
         for row in rows
     ]
 
     X["llm_n_skills"] = [
-        len(row["skills"])
-        if "skills" in row
-        else np.nan
-        for row in rows
+        len(row["skills"]) if "skills" in row else np.nan for row in rows
     ]
 
-    X["llm_guess"] = [
-        row.get("llm_salary_guess_k")
-        for row in rows
-    ]
+    X["llm_guess"] = [row.get("llm_salary_guess_k") for row in rows]
 
     for column in LLM_NUMERIC + ["llm_guess"]:
-        X[column] = pd.to_numeric(
-            X[column],
-            errors="coerce"
-        )
+        X[column] = pd.to_numeric(X[column], errors="coerce")
 
     return X
 
@@ -374,6 +293,7 @@ def add_llm_features(df_raw, X):
 # --------------------------------------------------
 # 7. Compare LLM and ML performance
 # --------------------------------------------------
+
 
 def evaluate():
 
@@ -397,43 +317,23 @@ def evaluate():
 
     def rmse(numeric):
 
-        pipeline = Pipeline([
-            (
-                "prep",
-                text_preprocessor(numeric=numeric)
-            ),
-            (
-                "model",
-                Ridge(alpha=3)
-            )
-        ])
+        pipeline = Pipeline(
+            [("prep", text_preprocessor(numeric=numeric)), ("model", Ridge(alpha=3))]
+        )
 
         scores = cross_val_score(
-            pipeline,
-            X,
-            y,
-            groups=groups,
-            cv=cv,
-            scoring="neg_root_mean_squared_error"
+            pipeline, X, y, groups=groups, cv=cv, scoring="neg_root_mean_squared_error"
         )
 
         return float(-scores.mean())
 
-    llm_only = float(
-        np.sqrt(
-            np.mean(
-                (X["llm_guess"].values - y) ** 2
-            )
-        )
-    )
+    llm_only = float(np.sqrt(np.mean((X["llm_guess"].values - y) ** 2)))
 
     results = {
         "rows": int(len(y)),
         "llm_only_rmse": llm_only,
         "ml_keywords_rmse": rmse(NUMERIC),
-        "ml_keywords+llm_rmse": rmse(
-            NUMERIC + LLM_NUMERIC
-        )
+        "ml_keywords+llm_rmse": rmse(NUMERIC + LLM_NUMERIC),
     }
 
     print(json.dumps(results, indent=2))
@@ -442,20 +342,17 @@ def evaluate():
 
 
 if __name__ == "__main__":
-
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
         "--limit",
         type=int,
         default=None,
-        help="Number of new uncached postings to extract"
+        help="Number of new uncached postings to extract",
     )
 
     parser.add_argument(
-        "--evaluate",
-        action="store_true",
-        help="Evaluate ML and LLM predictions"
+        "--evaluate", action="store_true", help="Evaluate ML and LLM predictions"
     )
 
     args = parser.parse_args()
@@ -466,7 +363,4 @@ if __name__ == "__main__":
     else:
         df, _, _, _ = load_xy()
 
-        run_extraction(
-            df=df,
-            limit=args.limit
-        )
+        run_extraction(df=df, limit=args.limit)

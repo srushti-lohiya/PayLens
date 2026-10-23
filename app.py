@@ -1,10 +1,3 @@
-
-"""Step 9: PayLens Streamlit demo UI.
-
-Run:
-    python -m streamlit run app.py
-"""
-
 import pandas as pd
 import streamlit as st
 

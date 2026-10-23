@@ -1,17 +1,3 @@
-"""Step 7: RAG — retrieve similar real postings and explain the estimate.
-
-Index  : one embedding per posting (sentence-transformers if installed,
-         otherwise TF-IDF + SVD so it still works offline).
-Search : cosine similarity, top-k.
-Explain: an LLM writes a short explanation that may ONLY use the retrieved jobs
-         and the model's numbers (grounded). Without an API key a template is used.
-
-Run:
-  python -m src.rag build       # build models/rag_index.joblib
-  python -m src.rag eval        # retrieval quality (leave-company-out)
-  python -m src.rag search "senior data scientist python spark healthcare"
-"""
-
 import sys
 import joblib
 import numpy as np

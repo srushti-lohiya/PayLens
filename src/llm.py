@@ -1,5 +1,3 @@
-"""OpenAI wrapper for text and structured JSON generation."""
-
 import json
 from openai import OpenAI
 

@@ -1,9 +1,3 @@
-"""Step 1: load raw Glassdoor data, parse salary, remove leakage sources.
-
-Fixes vs. the original notebook:
-  * rows with no salary are DROPPED (never impute the target)
-  * duplicate postings are DROPPED (they leak between CV folds)
-"""
 import re
 import numpy as np
 import pandas as pd

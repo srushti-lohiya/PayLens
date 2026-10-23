@@ -1,9 +1,3 @@
-"""Step 5: explain the model.
-  * SHAP summary for the LightGBM tabular model (what drives salary)
-  * top positive / negative words from the Ridge+TF-IDF model
-Run:  python -m src.explain     -> reports/shap_summary.png, reports/top_words.csv
-"""
-
 import matplotlib
 
 matplotlib.use("Agg")

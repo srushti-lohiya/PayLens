@@ -1,12 +1,3 @@
-"""Step 3b: honest evaluation + training.
-
-  * GroupKFold by company  -> no company appears in both train and test
-  * baselines first         -> every model is judged against them
-  * RMSE / MAE / MAPE in $K -> numbers a human understands
-
-Run:  python -m src.train            (add --mlflow to log runs)
-"""
-
 import argparse
 import json
 import joblib

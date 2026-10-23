@@ -1,4 +1,5 @@
 """Step 0: one place for paths and settings."""
+
 from pathlib import Path
 import os
 from dotenv import load_dotenv
@@ -12,7 +13,7 @@ MODELS_DIR = ROOT / "models"
 REPORTS_DIR = ROOT / "reports"
 
 TARGET = "salary"
-GROUP_COL = "company"          # GroupKFold: one company never sits in train AND test
+GROUP_COL = "company"
 RANDOM_STATE = 42
 N_SPLITS = 5
 

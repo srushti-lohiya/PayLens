@@ -1,10 +1,3 @@
-"""Step 2: turn raw columns into model features.
-
-build_features() works on the ORIGINAL Glassdoor column names, so the same function
-is used for training, the API and the Streamlit app (no train/serve skew).
-Nothing here looks at the target or at other rows, so it is safe before CV.
-"""
-
 import re
 import numpy as np
 import pandas as pd

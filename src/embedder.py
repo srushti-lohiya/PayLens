@@ -1,14 +1,3 @@
-
-"""Text embedding for PayLens RAG.
-
-Supported backends:
-    EMBEDDER_BACKEND=tfidf
-    EMBEDDER_BACKEND=sentence-transformers
-    EMBEDDER_BACKEND=auto
-
-Default: auto (sentence-transformers if available).
-"""
-
 import os
 import numpy as np
 
@@ -21,14 +10,8 @@ class Embedder:
     def __init__(self):
         backend = os.getenv("EMBEDDER_BACKEND", "auto").lower()
 
-        if backend not in (
-            "auto",
-            "tfidf",
-            "sentence-transformers"
-        ):
-            raise ValueError(
-                f"Unsupported EMBEDDER_BACKEND: {backend}"
-            )
+        if backend not in ("auto", "tfidf", "sentence-transformers"):
+            raise ValueError(f"Unsupported EMBEDDER_BACKEND: {backend}")
 
         self.st = None
         self.tf = None
@@ -47,10 +30,7 @@ class Embedder:
             if backend == "sentence-transformers":
                 raise
 
-            print(
-                "Sentence-transformers unavailable. "
-                "Using TF-IDF + SVD."
-            )
+            print("Sentence-transformers unavailable. Using TF-IDF + SVD.")
 
     def fit(self, texts):
         if self.kind == "tfidf+svd":
@@ -64,12 +44,9 @@ class Embedder:
                     ngram_range=(1, 2),
                     stop_words="english",
                     sublinear_tf=True,
-                    min_df=2
+                    min_df=2,
                 ),
-                TruncatedSVD(
-                    n_components=128,
-                    random_state=RANDOM_STATE
-                )
+                TruncatedSVD(n_components=128, random_state=RANDOM_STATE),
             ).fit(texts)
 
         return self
@@ -77,26 +54,16 @@ class Embedder:
     def encode(self, texts):
         if self.kind == "tfidf+svd":
             if self.tf is None:
-                raise RuntimeError(
-                    "TF-IDF embedder must be fitted before encoding."
-                )
+                raise RuntimeError("TF-IDF embedder must be fitted before encoding.")
             vectors = self.tf.transform(texts)
         else:
             vectors = self.st.encode(
-                list(texts),
-                batch_size=32,
-                show_progress_bar=False
+                list(texts), batch_size=32, show_progress_bar=False
             )
 
         vectors = np.asarray(vectors, dtype=np.float32)
 
-        return vectors / (
-            np.linalg.norm(
-                vectors,
-                axis=1,
-                keepdims=True
-            ) + 1e-9
-        )
+        return vectors / (np.linalg.norm(vectors, axis=1, keepdims=True) + 1e-9)
 
     def __getstate__(self):
         state = self.__dict__.copy()
@@ -108,4 +75,5 @@ class Embedder:
 
         if self.kind != "tfidf+svd":
             from sentence_transformers import SentenceTransformer
+
             self.st = SentenceTransformer(self.kind)
